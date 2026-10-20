@@ -1,7 +1,7 @@
 # ✨ Apsara — E-commerce AI Assistant
 
 <p align="center">
-  <img src="assets/fictional_model.jpeg" alt="Apsara — a celestial AI-inspired character" width="100%">
+  <img src="/apsara/assets/fictional_model.jpeg" alt="Apsara — a celestial AI-inspired character" width="100%">
 </p>
 
 <p align="center">
