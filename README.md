@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>An AI-powered ride assistant that helps passengers find rides and drivers manage scheduled trips.</strong>
+  <strong>An AI-powered ride-sharing assistant for passengers and drivers, focused on natural-language support for shared journeys in Kerala.</strong>
 </p>
 
 <p align="center">
@@ -15,76 +15,35 @@
   <img src="https://img.shields.io/badge/Status-In%20Development-F59E0B?style=for-the-badge" alt="In Development">
 </p>
 
-## 🌌 About Apsara
+## About Apsara
 
-**Apsara** is an AI assistant for a ride-sharing application that connects drivers who have already planned a journey with passengers travelling along the same route.
+**Apsara** is an AI assistant for a ride-sharing application. It is intended to help passengers find rides and help drivers understand how to schedule and manage trips.
 
-Drivers can schedule upcoming trips, specify their departure time and available seats, and set a passenger contribution amount. Passengers can search for suitable rides, compare available options, and book seats for an affordable journey.
+The project uses **Qwen2.5-1.5B-Instruct** as its initial language model. The current work focuses on preparing ride-sharing training data, evaluating the base model, and preparing an initial LoRA fine-tuning experiment.
 
-Apsara aims to make this experience easier through natural-language conversations.
+Apsara is still in development. A fine-tuned model, live ride API integration, and production-ready booking workflows have **not** been established yet.
 
-The project uses **Qwen2.5-1.5B-Instruct** as its initial base language model. The goal is to specialize the model for ride-sharing conversations and connect it to application APIs so it can retrieve real trip information instead of relying on memorized data.
+## Project goals
 
-> Apsara is currently under development. Fine-tuning, API integration, and evaluation are ongoing or planned stages; production readiness has not yet been established.
+- Understand passenger and driver requests in natural language.
+- Ask for missing route, date, and departure-time information.
+- Help passengers compare ride options returned by the application.
+- Help drivers understand trip scheduling and management.
+- Avoid inventing live availability, prices, seat counts, driver locations, or booking status.
+- Explore parameter-efficient fine-tuning using LoRA.
+- Evaluate English, Malayalam, and Manglish responses.
+- Eventually connect the assistant to controlled backend APIs for ride search and booking workflows.
 
-## 🎯 Project Goals
+## Important design rule
 
-- 🤖 Develop an AI assistant specialized in ride-sharing.
-- 💬 Understand passenger questions and driver requests expressed in natural language.
-- 🚗 Help drivers understand how to schedule and manage trips.
-- 📍 Help passengers find rides matching their pickup point, destination, and preferred departure time.
-- 💺 Retrieve current seat availability and ride details through backend APIs.
-- 💰 Help passengers compare available rides and their displayed contribution amounts.
-- 🧠 Experiment with parameter-efficient fine-tuning techniques such as LoRA.
-- 🔌 Explore controlled API tool calling for ride searches and booking workflows.
-- 🧪 Evaluate response quality, factual accuracy, and correct use of application tools.
+The language model must not be treated as the source of truth for live application data.
 
-## 🚘 Core Use Cases
+- Ride listings, prices, available seats, trip status, and booking status must come from the backend.
+- The backend must enforce authorization, validate requests, and handle state-changing operations.
+- The assistant should ask for confirmation before submitting a booking or cancellation when required by the product workflow.
+- It must not disclose another user's private contact information without proper authorization.
 
-### 1. Driver — Schedule a Trip
-
-A driver planning to travel from Kolenchery to Kochi at 10 AM can schedule the journey in the application.
-
-Apsara should be able to explain the scheduling process and help collect details such as:
-
-- Starting point and destination
-- Travel date and departure time
-- Available passenger seats
-- Passenger contribution amount
-
-The application backend remains responsible for validating and saving the scheduled trip.
-
-### 2. Passenger — Find a Ride
-
-A passenger can ask:
-
-> "Find a ride from Kolenchery to Kochi tomorrow at 10 AM."
-
-Apsara should extract the route and travel-time requirements, call the ride-search API, and present matching trips returned by the application.
-
-### 3. Check Ride Details
-
-Apsara should help passengers retrieve information such as:
-
-- Available seats
-- Pickup and drop-off points
-- Departure time
-- Displayed passenger contribution
-- Relevant booking details
-
-These details must come from the backend rather than being invented by the model.
-
-### 4. Booking Assistance
-
-Apsara should help a passenger select a suitable ride, clarify missing information, and request confirmation before initiating a booking.
-
-The backend must validate the trip, seat availability, user authorization, and booking rules before creating a reservation.
-
-### 5. General Application Support
-
-Apsara should answer questions about scheduling trips, searching for rides, bookings, cancellations, and other supported application features using the actual rules defined by the application.
-
-## 🏗️ Intended Architecture
+## Intended architecture
 
 ```text
 Passenger / Driver
@@ -94,114 +53,129 @@ Ride-Sharing Application
         |
         v
 Apsara AI Assistant
-Qwen2.5-1.5B-Instruct
+Qwen2.5-1.5B-Instruct + optional LoRA adapter
         |
         v
-Intent Understanding
-and Tool Selection
+Intent understanding and tool selection
         |
         v
-Controlled Backend API Calls
+Controlled backend API calls
+        |
+        +--> Ride search
+        +--> Trip details / seats / contribution
+        +--> Booking status
+        +--> Authorized booking or cancellation
         |
         v
-Ride Search / Trip Details /
-Seat Availability / Booking
+Application database
         |
         v
-Application Database
+Verified API result
         |
         v
-API Results Returned to Apsara
-        |
-        v
-Natural-Language Response
+Natural-language response
 ```
 
-This describes the intended architecture, not a claim that every component has already been implemented.
+This is the **intended architecture**. It does not mean all API tools or booking flows have already been implemented.
 
-The language model handles conversation and determines when an application tool is needed. The backend remains the source of truth for live ride data and performs all authorized state-changing operations.
+## Technology stack
 
-## 🛠️ Technology Stack
-
-| Technology | Purpose |
+| Technology | Purpose / current use |
 |---|---|
-| Python | Model development and dataset processing |
+| Python | Dataset scripts, model experiments, and evaluation |
 | Qwen2.5-1.5B-Instruct | Initial base language model |
-| Hugging Face Transformers | Model loading and experimentation |
-| Hugging Face PEFT | Planned LoRA fine-tuning experiments |
-| Hugging Face Datasets | Dataset loading and processing |
-| llama.cpp | Local inference with GGUF models |
-| Vulkan | AMD GPU acceleration for supported inference workloads |
-| JSONL | Conversational training-data format |
-| Git & GitHub | Version control and documentation |
+| Hugging Face Transformers | Loading the model and running inference/training experiments |
+| Hugging Face PEFT | LoRA adapter configuration and fine-tuning |
+| Hugging Face Datasets | Available for dataset workflows |
+| JSONL | Conversational training and evaluation data |
+| llama.cpp | Local inference using the quantized GGUF model |
+| Vulkan | GPU acceleration for supported `llama.cpp` inference builds |
+| PyTorch | Model execution and training |
+| Git / GitHub | Version control and documentation |
 
-The final fine-tuning configuration, training hardware, and backend integration technologies are still being evaluated or implemented.
+The current Transformers/PyTorch environment reports that CUDA is unavailable. CUDA is NVIDIA-specific; the laptop has AMD GPUs, so AMD GPU training needs a separately verified compatible compute stack. Local GPU inference with Vulkan does not prove that PyTorch GPU training works.
 
-## 📚 Dataset Preparation
+## Repository structure
 
-Apsara requires conversational data relevant to ride-sharing rather than e-commerce customer support.
-
-The project has a new dataset directory:
+The following tree documents the files created or discussed in the current development workflow. Some older project files may exist in addition to these.
 
 ```text
-apsara/ride_sharing_data/
-└── train.jsonl
+LLM-MODEL-E-COMMERCE/
+├── README.md
+├── env/                              # Existing project Python environment
+└── apsara/
+    ├── assets/
+    │   └── fictional_model.jpeg      # README image
+    │
+    ├── models/
+    │   └── qwen/
+    │       ├── hf/                   # Downloaded Hugging Face model files
+    │       │   ├── config.json
+    │       │   ├── tokenizer files
+    │       │   └── model.safetensors
+    │       ├── qwen2.5-1.5b-instruct-q4_k_m.gguf
+    │       └── apsara-lora-v1/        # Intended output for LoRA adapter
+    │
+    ├── ride_sharing_data/
+    │   ├── train.jsonl
+    │   ├── train_before_batch_2.jsonl
+    │   ├── generated_review.jsonl
+    │   ├── generated_batch_2.jsonl
+    │   ├── train_before_improvements.jsonl
+    │   ├── improvement_review.jsonl
+    │   ├── evaluation.jsonl
+    │   ├── base_model_results.jsonl
+    │   ├── generate_dataset.py
+    │   ├── generate_batch_2.py
+    │   ├── generate_improvement_batch.py
+    │   ├── merge_batch_2.py
+    │   ├── merge_improvements.py
+    │   ├── validate_ride_sharing_data.py
+    │   ├── create_evaluation.py
+    │   ├── evaluate_base_model.py
+    │   └── train_lora.py
+    │
+    ├── prepared_data/                # Legacy e-commerce experiment data
+    │   ├── train.jsonl
+    │   ├── test.jsonl
+    │   └── filtered_experiment/
+    │       └── train.jsonl
+    │
+    ├── prepare_dataset.py            # Legacy dataset preparation
+    ├── inspect_dataset.py             # Legacy dataset inspection
+    ├── audit_dataset.py              # Legacy dataset audit
+    ├── filter_dataset.py             # Legacy dataset filtering
+    ├── validate_filtered.py          # Legacy dataset validation
+    ├── placeholder_audit.py           # Legacy placeholder audit
+    ├── download_datasets.py          # Legacy dataset download helper
+    └── llm-test.py                   # Earlier local model test
 ```
 
-The initial training file contains eight manually prepared ride-sharing conversations covering topics such as:
+**Note:** The tree lists known files from the current workflow. Confirm with `find apsara -maxdepth 4 -type f` before treating it as an exact inventory. The `apsara-lora-v1/` directory is the configured output location; it may not exist until training completes successfully.
 
-- How the application works
-- Driver trip scheduling
-- Passenger ride searches
-- Comparing prices
-- Checking seat availability
-- Handling unavailable rides
-- Booking assistance
-- Cancellation guidance
+## Model files
 
-These examples are only an initial seed dataset. They are not sufficient on their own for reliable fine-tuning or comprehensive evaluation.
+### Hugging Face model
 
-### Legacy Dataset Experiment
+Location:
 
-The project previously used the [Bitext retail e-commerce chatbot dataset](https://huggingface.co/datasets/bitext/Bitext-retail-ecommerce-llm-chatbot-training-dataset) to experiment with conversational data preparation.
+```text
+apsara/models/qwen/hf/
+```
 
-The previous preparation workflow included JSONL conversion, dataset inspection, placeholder auditing, filtering, and validation.
+This directory contains the local Hugging Face model and tokenizer files used by the Transformers scripts. The base model is loaded from this directory.
 
-The original files remain under `apsara/prepared_data/`. They are retained for reference and are **not intended as the primary training data for the ride-sharing assistant**.
+### GGUF model
 
-The earlier filtered dataset contained 11,712 examples, but those examples were e-commerce-focused. This figure does not represent the size of the new ride-sharing dataset.
-
-**Dataset licensing:** Review the dataset's license and terms before redistributing its contents or using any resulting model commercially.
-
-## 🧠 Model Development Roadmap
-
-- [x] Select Qwen2.5-1.5B-Instruct as the initial base model.
-- [x] Run local inference using a GGUF model and Vulkan.
-- [x] Prepare and validate the original e-commerce conversational dataset.
-- [x] Create a separate ride-sharing dataset directory.
-- [x] Add and validate eight initial ride-sharing conversations.
-- [ ] Expand and review the ride-sharing training dataset.
-- [ ] Create a separate evaluation dataset.
-- [ ] Evaluate the base model on ride-sharing requests.
-- [ ] Finalize a memory-conscious fine-tuning environment.
-- [ ] Run an initial LoRA training experiment.
-- [ ] Evaluate the fine-tuned model on held-out examples.
-- [ ] Design structured API tool-calling examples.
-- [ ] Integrate controlled ride-search API calls.
-- [ ] Implement and test booking workflows with backend validation.
-- [ ] Document performance, limitations, and evaluation results.
-
-## 💻 Local Model Inference
-
-A quantized GGUF version of Qwen2.5-1.5B-Instruct has been tested locally using `llama.cpp` with Vulkan acceleration.
-
-The local model file used in the experiment is:
+Location:
 
 ```text
 apsara/models/qwen/qwen2.5-1.5b-instruct-q4_k_m.gguf
 ```
 
-Example command:
+This is the quantized GGUF model used for local `llama.cpp` inference. It is separate from the Hugging Face model used by the current Transformers training script.
+
+Example inference command (the Vulkan device name can differ by installation):
 
 ```bash
 llama-cli \
@@ -211,98 +185,264 @@ llama-cli \
   --ctx-size 2048
 ```
 
-The device name may differ depending on the local `llama.cpp` build.
+This runs inference; it does **not** fine-tune the model or connect it to live ride APIs.
 
-This command runs the **base model for inference**. It does not perform fine-tuning or connect the model to ride-search APIs.
+## Ride-sharing dataset
 
-Model weights are not included in this repository. Obtain model files according to the publisher's instructions and terms.
-
-## 🧪 Training and Evaluation
-
-The project is exploring parameter-efficient fine-tuning, particularly LoRA, to adapt the base model to ride-sharing conversations.
-
-Planned evaluation areas include:
-
-- Correctly identifying ride-search requests
-- Extracting routes, dates, and departure times
-- Asking for missing trip details
-- Avoiding invented ride listings, prices, and seat counts
-- Selecting the correct backend tool
-- Handling unavailable rides and API errors
-- Confirming booking details before state-changing actions
-
-Local GPU inference does not guarantee that GPU fine-tuning is supported. The training framework and hardware configuration must be tested separately.
-
-## 📁 Project Structure
+All new ride-sharing conversational data is stored in:
 
 ```text
-LLM-MODEL-E-COMMERCE/
-├── README.md
-├── env/
-└── apsara/
-    ├── assets/
-    │   └── fictional_model.jpeg
-    ├── models/
-    │   └── qwen/
-    │       └── qwen2.5-1.5b-instruct-q4_k_m.gguf
-    ├── prepared_data/
-    │   ├── train.jsonl
-    │   ├── test.jsonl
-    │   └── filtered_experiment/
-    │       └── train.jsonl
-    ├── ride_sharing_data/
-    │   └── train.jsonl
-    ├── prepare_dataset.py
-    ├── inspect_dataset.py
-    ├── audit_dataset.py
-    ├── filter_dataset.py
-    ├── validate_filtered.py
-    ├── placeholder_audit.py
-    ├── download_datasets.py
-    └── llm-test.py
+apsara/ride_sharing_data/
 ```
 
-The structure reflects the current project files and may evolve as dedicated training, API integration, and evaluation scripts are added.
+### Current dataset status
 
-## 🔒 Data and Model Files
+At the time this README was updated:
 
-Large model weights, generated checkpoints, virtual environments, and local datasets should be excluded from Git tracking unless there is a specific reason to publish them.
+- `train.jsonl` contains **64 examples**.
+- `evaluation.jsonl` contains **20 examples**.
+- A check found **0 exact user-question overlaps** between the training and evaluation files.
+- The training dataset structure validator reported **0 errors**.
+- `base_model_results.jsonl` stores the base model's generated answers to the evaluation questions.
 
-This keeps the repository focused on source code, documentation, and reproducible project workflows.
+The evaluation set must remain separate from training. Do not merge `evaluation.jsonl` into `train.jsonl`; otherwise, the evaluation would no longer be a clean held-out test.
 
-Do not commit API keys, access tokens, database credentials, private user information, or other secrets.
+### JSONL conversation format
 
-## ⚠️ Current Limitations
+Each line in `train.jsonl` is an independent JSON object with a `messages` list. The current dataset examples use a user message and an assistant response:
 
-- Ride-sharing fine-tuning has not yet been completed.
-- The initial ride-sharing dataset contains only eight examples.
-- API tool calling and live ride retrieval are planned capabilities, not yet confirmed as implemented.
-- Real-time ride availability, pricing, and booking status must come from the backend.
-- Local GPU inference support does not guarantee GPU fine-tuning support.
-- The model may generate incorrect or incomplete responses and requires evaluation before real-world deployment.
-- Booking operations require backend validation, authorization, and appropriate confirmation flows.
+```json
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "I need a ride from Aluva to Kakkanad tomorrow morning."
+    },
+    {
+      "role": "assistant",
+      "content": "What departure time would you prefer? I'll need current ride listings to confirm availability."
+    }
+  ]
+}
+```
 
-## 🤝 Contributions
+Each JSON object must be on a single line in the actual JSONL file. The example above is formatted across multiple lines only for readability.
 
-Suggestions, bug reports, and improvements are welcome.
+Training answers should be accurate and diverse. Avoid training the model to claim that it has searched for a ride, confirmed a booking, or retrieved a price unless a real backend result supports that claim.
 
-1. Fork the repository.
-2. Create a feature branch.
-3. Make and test your changes.
-4. Open a pull request describing your changes.
+## Ride-sharing data files and scripts
 
-## 📜 Acknowledgements
+| File | Purpose |
+|---|---|
+| `train.jsonl` | Current ride-sharing fine-tuning dataset. It currently contains 64 examples. |
+| `generated_review.jsonl` | Earlier generated/review batch retained as a source/reference file. |
+| `generated_batch_2.jsonl` | Second generated batch, containing 31 examples in the current workflow. |
+| `improvement_review.jsonl` | New 15-example improvement batch targeting hallucinations, privacy, booking-status handling, and local-language conversations. |
+| `train_before_batch_2.jsonl` | Backup of the 18-example training dataset before batch 2 was merged. |
+| `train_before_improvements.jsonl` | Backup of the 49-example training dataset before the 15 improvement examples were merged. |
+| `evaluation.jsonl` | Held-out evaluation questions. Keep this separate from training. |
+| `base_model_results.jsonl` | Base model outputs for the 20 evaluation questions, including expected and generated answers. |
+| `generate_dataset.py` | Generates the initial review examples. |
+| `generate_batch_2.py` | Generates the second batch of ride-sharing examples. |
+| `generate_improvement_batch.py` | Creates the 15-example improvement batch. |
+| `merge_batch_2.py` | Appends unseen questions from batch 2 and makes a backup before merging. |
+| `merge_improvements.py` | Validates and merges improvement examples while skipping exact duplicate user questions; makes a backup before writing. |
+| `validate_ride_sharing_data.py` | Checks the structure of `train.jsonl`. |
+| `create_evaluation.py` | Creates the separate evaluation set. |
+| `evaluate_base_model.py` | Runs the base model on evaluation questions and saves the results. |
+| `train_lora.py` | Initial CPU-oriented LoRA training experiment; syntax and data-preparation checks have passed, but successful training has not yet been confirmed. |
 
-- [Qwen](https://huggingface.co/Qwen) for the base language model.
-- [Hugging Face](https://huggingface.co/) for model and dataset tooling.
-- [llama.cpp](https://github.com/ggml-org/llama.cpp) for local GGUF inference.
-- [Bitext](https://huggingface.co/bitext) for the previous e-commerce dataset experiment.
+The generated/review and backup files are kept for traceability. They are not all separate training sets. The file used by the current training script is `train.jsonl`.
 
-## 👨‍💻 Project
+## Dataset commands
 
-**Apsara — AI Ride Assistant**
+Run commands from the repository root.
 
-An ongoing project exploring specialized language models, ride-sharing assistance, and backend API integration.
+### Validate the training dataset
+
+```bash
+python apsara/ride_sharing_data/validate_ride_sharing_data.py
+```
+
+Expected current result:
+
+```text
+Total examples: 64
+Errors: 0
+Dataset structure validation passed.
+```
+
+### Check training/evaluation overlap
+
+```bash
+python -c "import json; from pathlib import Path; b=Path('apsara/ride_sharing_data'); load=lambda p:[json.loads(x) for x in p.read_text(encoding='utf-8').splitlines() if x.strip()]; train=load(b/'train.jsonl'); ev=load(b/'evaluation.jsonl'); getq=lambda r: next(m['content'].strip().casefold() for m in r['messages'] if m['role']=='user'); tq={getq(r) for r in train}; overlap=[getq(r) for r in ev if getq(r) in tq]; print('Training examples:',len(train)); print('Evaluation examples:',len(ev)); print('Overlapping questions:',len(overlap)); [print('-',q) for q in overlap]"
+```
+
+The most recent run reported 64 training examples, 20 evaluation examples, and 0 exact question overlaps. This check only catches exact normalized user-question matches; it does not guarantee that the sets contain no semantically similar examples.
+
+## Base model evaluation
+
+Run:
+
+```bash
+python apsara/ride_sharing_data/evaluate_base_model.py
+```
+
+The script evaluates the base Qwen model using `evaluation.jsonl` and writes:
+
+```text
+apsara/ride_sharing_data/base_model_results.jsonl
+```
+
+The first baseline run showed issues that need improvement, including invented ride information, weak Malayalam/Manglish responses, and an unsafe response involving another passenger's contact details. Some responses handled missing details or booking confirmation more appropriately.
+
+Use the same evaluation questions and comparable generation settings when evaluating a fine-tuned model. Compare outputs manually against explicit criteria such as relevance, factual honesty, privacy, safe booking behavior, and language quality. A model's generated answer should not be treated as correct merely because it is fluent.
+
+## LoRA training experiment
+
+Training script:
+
+```text
+apsara/ride_sharing_data/train_lora.py
+```
+
+Configured base model:
+
+```text
+apsara/models/qwen/hf/
+```
+
+Configured adapter output:
+
+```text
+apsara/models/qwen/apsara-lora-v1/
+```
+
+The script uses Hugging Face Transformers `Trainer` and PEFT LoRA. Its current settings include:
+
+- CPU training (`use_cpu=True`)
+- FP32 base model loading
+- LoRA rank 8 and alpha 16
+- Batch size 1
+- Gradient accumulation steps 4
+- 3 epochs
+- Learning rate `1e-4`
+- Gradient checkpointing
+- Assistant-response-only loss masking
+
+The script has passed a Python syntax check and a dataset-preparation check. **A completed training run and a successful adapter load have not yet been confirmed.** CPU training may be slow and memory-intensive on this laptop.
+
+To check syntax:
+
+```bash
+python -m py_compile apsara/ride_sharing_data/train_lora.py
+```
+
+To start the current experiment, after reviewing the configuration and ensuring sufficient memory:
+
+```bash
+python apsara/ride_sharing_data/train_lora.py
+```
+
+If training completes, the adapter is intended to be saved under `apsara/models/qwen/apsara-lora-v1/`. The original base model is not supposed to be overwritten.
+
+### Training limitations
+
+- Sixty-four examples are enough only for an initial experiment, not for establishing production reliability.
+- Training loss decreasing does not prove that answer quality improves.
+- The current script is configured for CPU; it does not automatically use the AMD GPUs.
+- Evaluate the resulting adapter on the same held-out questions before deciding whether to continue training.
+
+## AMD GPU investigation
+
+The laptop has two AMD GPU devices detected by `lspci`:
+
+- Discrete Radeon RX 6500M-family device: PCI ID `1002:743f`, architecture detected as `gfx1034`.
+- Integrated Cezanne/Radeon Vega device: PCI ID `1002:1638`, architecture detected as `gfx90c`.
+
+The Linux system exposes `/dev/kfd` and `/dev/dri/renderD*`, but those device nodes alone do not prove that ROCm/PyTorch compute works.
+
+At the time of writing:
+
+- `/opt/rocm` was not present.
+- `rocminfo` was not installed/available as a command.
+- `rocm-bootstrap` 0.3.0 was installed in a separate environment at `~/rocm-test`.
+- Running `rocm-bootstrap-detect` printed `gfx1034` and `gfx90c`.
+- PyTorch in the project's existing environment reported `torch.cuda.is_available() == False`.
+- A compatible PyTorch GPU runtime has **not** yet been installed or verified.
+- No GPU fine-tuning run has been confirmed.
+
+Do not infer that GPU training works merely because the GPU architecture is detected. Any experimental ROCm/TheRock package should be tested in an isolated environment first, without replacing the project's existing PyTorch setup or system graphics drivers.
+
+## Legacy e-commerce dataset
+
+The following directory contains data from an earlier e-commerce chatbot experiment:
+
+```text
+apsara/prepared_data/
+├── train.jsonl
+├── test.jsonl
+└── filtered_experiment/
+    └── train.jsonl
+```
+
+These files are retained for reference and are **not the Apsara ride-sharing training dataset**. Do not merge them into `apsara/ride_sharing_data/train.jsonl`. Review the original dataset's license and terms before redistribution or commercial use.
+
+## Safety and production considerations
+
+Before Apsara is used by real passengers or drivers:
+
+- Implement backend ride-search and booking APIs.
+- Require authorization for account-specific data and state-changing actions.
+- Validate current trip and seat availability at the backend.
+- Avoid duplicate bookings after timeouts by checking booking status before retrying.
+- Never invent a ride, price, seat count, driver location, or booking status.
+- Protect passenger contact details and other private information.
+- Test English, Malayalam, and Manglish conversations.
+- Evaluate both normal and adversarial requests.
+- Log errors without leaking credentials or private data.
+
+Fine-tuning can help shape response patterns, but it does not replace backend validation, permissions, or live data retrieval.
+
+## Roadmap
+
+- [x] Select Qwen2.5-1.5B-Instruct as the initial base model.
+- [x] Download the Hugging Face model and retain a quantized GGUF model for inference.
+- [x] Create a separate ride-sharing dataset directory.
+- [x] Expand the ride-sharing training dataset to 64 examples.
+- [x] Validate the current training dataset structure.
+- [x] Create a separate 20-question evaluation set.
+- [x] Confirm zero exact user-question overlaps between training and evaluation.
+- [x] Run baseline evaluation and save its results.
+- [x] Create an initial LoRA training script and validate its syntax/data preparation.
+- [x] Detect local AMD GPU architecture names in an isolated ROCm test environment.
+- [ ] Complete a GPU runtime compatibility test, if feasible.
+- [ ] Run the first successful LoRA training experiment.
+- [ ] Load and test the saved adapter.
+- [ ] Compare base and fine-tuned responses on the held-out evaluation set.
+- [ ] Improve dataset quality and add more diverse reviewed examples.
+- [ ] Build and test controlled backend tool calling.
+- [ ] Implement authorized ride-search and booking workflows.
+- [ ] Document measured quality, speed, and memory use.
+
+## Repository hygiene
+
+Avoid committing the following unless there is a deliberate reason:
+
+- Large model weights and checkpoints
+- Virtual environments (`env/`, `rocm-test/`)
+- Private datasets or user information
+- API keys, access tokens, database credentials, or other secrets
+
+The `rocm-test` environment is located in the home directory (`~/rocm-test`), outside this repository.
+
+## Acknowledgements
+
+- [Qwen](https://huggingface.co/Qwen) — base language model
+- [Hugging Face](https://huggingface.co/) — Transformers and model tooling
+- [PEFT](https://huggingface.co/docs/peft/index) — parameter-efficient fine-tuning
+- [llama.cpp](https://github.com/ggml-org/llama.cpp) — local GGUF inference
+- [TheRock](https://github.com/ROCm/TheRock) — experimental AMD GPU compute ecosystem
 
 ---
 

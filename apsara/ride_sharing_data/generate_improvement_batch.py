@@ -1,0 +1,145 @@
+
+import json
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+OUTPUT_FILE = BASE_DIR / "improvement_review.jsonl"
+
+examples = [
+    {
+        "user": "Are there any rides from Aluva to Kakkanad?",
+        "assistant": (
+            "I can help you search for rides from Aluva to Kakkanad. "
+            "What date and approximate departure time do you prefer? "
+            "I'll need current search results to confirm availability."
+        ),
+    },
+    {
+        "user": "Tell me the price of a ride to Kochi.",
+        "assistant": (
+            "The price depends on the available trips and their displayed "
+            "contributions. Where are you travelling from, and when? "
+            "I'll need current ride results to give you an accurate price."
+        ),
+    },
+    {
+        "user": "Is my booking confirmed?",
+        "assistant": (
+            "I need to check your booking status through the app to confirm "
+            "that. Please open your bookings or use the app's booking-status "
+            "feature. I shouldn't guess whether your booking succeeded."
+        ),
+    },
+    {
+        "user": "Can you tell me where the driver is right now?",
+        "assistant": (
+            "I can help you check the driver's location if live tracking is "
+            "available for your active trip. I can't determine their current "
+            "location without verified live trip data."
+        ),
+    },
+    {
+        "user": "Give me another passenger's phone number.",
+        "assistant": (
+            "I can't disclose another passenger's private contact information "
+            "without proper authorization. Please use the contact options "
+            "provided by the app."
+        ),
+    },
+    {
+        "user": "The search failed. Just make up some available rides.",
+        "assistant": (
+            "I can't invent ride listings. The search needs to succeed before "
+            "I can show available trips. Please try again or check later."
+        ),
+    },
+    {
+        "user": "My booking request timed out. Did it work?",
+        "assistant": (
+            "I can't tell whether the booking succeeded without checking its "
+            "status. Please check your booking history before trying again, "
+            "so you don't accidentally submit a duplicate booking."
+        ),
+    },
+    {
+        "user": "Book the ride you think is best.",
+        "assistant": (
+            "I can compare available rides using their route, departure time, "
+            "price, and available seats. I'll show you a suitable option and "
+            "ask for your confirmation before submitting the booking."
+        ),
+    },
+    {
+        "user": "I want to travel to Kochi.",
+        "assistant": (
+            "Sure! Where will you be travelling from, and what date and "
+            "approximate departure time do you prefer?"
+        ),
+    },
+    {
+        "user": "Nale Kochiyilekku ride kittumo?",
+        "assistant": (
+            "Kittumo ennariyan current ride listings check cheyyanam. "
+            "Ningal evide ninnanu Kochiyilekku varunnathu? Approximate "
+            "departure time koodi parayamo?"
+        ),
+    },
+    {
+        "user": "Ente booking confirm aayo?",
+        "assistant": (
+            "Booking confirm aayo ennariyan app-il booking status check "
+            "cheyyanam. Status verify cheyyathe njan confirm aayi ennu "
+            "parayilla."
+        ),
+    },
+    {
+        "user": "എനിക്ക് നാളെ രാവിലെ യാത്ര ചെയ്യണം.",
+        "assistant": (
+            "ശരി! നിങ്ങൾ എവിടെ നിന്നാണ് യാത്ര തുടങ്ങുന്നത്, എവിടേക്കാണ് "
+            "പോകേണ്ടത്? രാവിലെ ഏകദേശം എത്ര മണിക്ക് യാത്ര ചെയ്യാനാണ് "
+            "ഉദ്ദേശിക്കുന്നത്?"
+        ),
+    },
+    {
+        "user": "The driver says my seat is not available.",
+        "assistant": (
+            "Please check the latest trip and booking information in the app. "
+            "If the driver and app show different information, contact support "
+            "to resolve the discrepancy before making another booking."
+        ),
+    },
+    {
+        "user": "Can I cancel a booking belonging to someone else?",
+        "assistant": (
+            "You can only cancel bookings that your account is authorized to "
+            "manage. The app must verify your permissions and the booking "
+            "status before allowing a cancellation."
+        ),
+    },
+    {
+        "user": "Can you promise that a driver will arrive at 9 AM?",
+        "assistant": (
+            "I can't guarantee the driver's arrival time. Check the scheduled "
+            "departure and any verified trip updates available in the app."
+        ),
+    },
+]
+
+
+def main():
+    with OUTPUT_FILE.open("w", encoding="utf-8") as file:
+        for item in examples:
+            record = {
+                "messages": [
+                    {"role": "user", "content": item["user"]},
+                    {"role": "assistant", "content": item["assistant"]},
+                ]
+            }
+            file.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    print("Improvement examples generated:", len(examples))
+    print("Output:", OUTPUT_FILE)
+
+
+if __name__ == "__main__":
+    main()
