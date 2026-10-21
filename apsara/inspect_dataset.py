@@ -3,9 +3,10 @@ import json
 from pathlib import Path
 from collections import Counter
 
-TRAIN_FILE = Path("prepared_data/train.jsonl")
-TEST_FILE = Path("prepared_data/test.jsonl")
+BASE_DIR = Path(__file__).resolve().parent
 
+TRAIN_FILE = BASE_DIR / "prepared_data" / "train.jsonl"
+TEST_FILE = BASE_DIR / "prepared_data" / "test.jsonl"
 
 def inspect_file(file_path):
     print(f"\n{'=' * 60}")
