@@ -1,0 +1,4 @@
+
+# Large local base models — do not push to GitHub
+apsara/models/qwen/hf/model.safetensors
+apsara/models/qwen/qwen2.5-1.5b-instruct-q4_k_m.gguf
