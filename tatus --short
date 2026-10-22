@@ -1,0 +1,16 @@
+ ...rge_malayalam_manglish_batch.py | 106 [32m++++[m
+ .../validate_improvement_batch.py  |  13 [32m+[m
+ .../compare_results.py             |  45 [32m++[m
+ .../comparison_report.txt          | 291 [32m++++++++++[m
+ .../evaluate_lora.py               |  96 [32m+++[m
+ .../evaluate_lora_cpu_full.py      |  94 [32m+++[m
+ .../inspect_results.py             |  20 [32m+[m
+ ...rge_malayalam_manglish_batch.py | 106 [32m++++[m
+ .../train.jsonl.before_example94   |  95 [32m+++[m
+ ...rain.jsonl.before_short_answers |  95 [32m+++[m
+ .../train_lora_cpu.py              | 253 [32m++++++++[m
+ .../train_lora_cpu.py.bak_v2       | 252 [32m++++++++[m
+ .../train_lora_gpu.py              | 267 [32m+++++++++[m
+ .../train_lora_gpu_test.py         | 267 [32m+++++++++[m
+ .../validate_improvement_batch.py  |  13 [32m+[m
+ 15 files changed, 2013 insertions(+)
