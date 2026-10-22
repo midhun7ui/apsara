@@ -1,21 +1,17 @@
 # ✨ Apsara — AI Ride Assistant
-<p *align*="center">
+<p align="center">
 
   <img src="apsara/assets/fictional_model.jpeg" alt="Apsara — an AI-inspired character" width="100%">
 
 </p>
 
-
-
-<p *align*="center">
+<p align="center">
 
   <strong>An AI-powered ride-sharing assistant for passengers and drivers, focused on natural-language support for shared journeys in Kerala.</strong>
 
 </p>
 
-
-
-<p *align*="center">
+<p align="center">
 
   <img src="https://img.shields.io/badge/Project-AI%20Fine--Tuning-7C3AED?style=for-the-badge" alt="AI Fine-tuning">
 
