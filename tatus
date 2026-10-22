@@ -1,0 +1,62 @@
+[33mcd84baa[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m deleted model files
+ apsara/.gitignore                                                           |     33 [31m-[m
+ apsara/models/qwen/apsara-lora-cpu-full-20261022/README.md                  |    207 [32m+[m
+ apsara/models/qwen/apsara-lora-cpu-full-20261022/adapter_config.json        |     48 [32m+[m
+ apsara/models/qwen/apsara-lora-cpu-full-20261022/adapter_model.safetensors  |    Bin [31m0[m -> [32m8745704[m bytes
+ apsara/models/qwen/apsara-lora-cpu-full-20261022/chat_template.jinja        |     54 [32m+[m
+ apsara/models/qwen/apsara-lora-cpu-full-20261022/tokenizer.json             | 757444 [32m++++++++++++++++++++++++++++++++[m
+ apsara/models/qwen/apsara-lora-cpu-full-20261022/tokenizer_config.json      |     30 [32m+[m
+ apsara/models/qwen/apsara-lora-cpu-manglish-v2-20261022/README.md           |    207 [32m+[m
+ apsara/models/qwen/apsara-lora-cpu-manglish-v2-20261022/adapter_config.json |     48 [32m+[m
+ .../qwen/apsara-lora-cpu-manglish-v2-20261022/adapter_model.safetensors     |    Bin [31m0[m -> [32m8745704[m bytes
+ apsara/models/qwen/apsara-lora-cpu-manglish-v2-20261022/chat_template.jinja |     54 [32m+[m
+ apsara/models/qwen/apsara-lora-cpu-manglish-v2-20261022/tokenizer.json      | 757444 [32m++++++++++++++++++++++++++++++++[m
+ .../models/qwen/apsara-lora-cpu-manglish-v2-20261022/tokenizer_config.json  |     30 [32m+[m
+ apsara/models/qwen/apsara-lora-cpu-one-step-20261022/README.md              |    207 [32m+[m
+ apsara/models/qwen/apsara-lora-cpu-one-step-20261022/adapter_config.json    |     48 [32m+[m
+ .../models/qwen/apsara-lora-cpu-one-step-20261022/adapter_model.safetensors |    Bin [31m0[m -> [32m8745704[m bytes
+ apsara/models/qwen/apsara-lora-cpu-one-step-20261022/chat_template.jinja    |     54 [32m+[m
+ apsara/models/qwen/apsara-lora-cpu-one-step-20261022/tokenizer.json         | 757444 [32m++++++++++++++++++++++++++++++++[m
+ apsara/models/qwen/apsara-lora-cpu-one-step-20261022/tokenizer_config.json  |     30 [32m+[m
+ apsara/models/qwen/apsara-lora-gpu-test-3/README.md                         |    207 [32m+[m
+ apsara/models/qwen/apsara-lora-gpu-test-3/adapter_config.json               |     48 [32m+[m
+ apsara/models/qwen/apsara-lora-gpu-test-3/adapter_model.safetensors         |    Bin [31m0[m -> [32m8745704[m bytes
+ apsara/models/qwen/apsara-lora-gpu-test-3/chat_template.jinja               |     54 [32m+[m
+ apsara/models/qwen/apsara-lora-gpu-test-3/tokenizer.json                    | 757444 [32m++++++++++++++++++++++++++++++++[m
+ apsara/models/qwen/apsara-lora-gpu-test-3/tokenizer_config.json             |     30 [32m+[m
+ apsara/models/qwen/hf/.gitattributes                                        |     35 [32m+[m
+ apsara/models/qwen/hf/LICENSE                                               |    202 [32m+[m
+ apsara/models/qwen/hf/README.md                                             |    110 [32m+[m
+ apsara/models/qwen/hf/config.json                                           |     27 [32m+[m
+ apsara/models/qwen/hf/generation_config.json                                |     14 [32m+[m
+ apsara/models/qwen/hf/merges.txt                                            | 151387 [32m+++++++[m
+ apsara/models/qwen/hf/model.safetensors                                     |    Bin [31m0[m -> [32m3087467144[m bytes
+ apsara/models/qwen/hf/tokenizer.json                                        | 303282 [32m+++++++++++++[m
+ apsara/models/qwen/hf/tokenizer_config.json                                 |    207 [32m+[m
+ apsara/models/qwen/hf/vocab.json                                            |      1 [32m+[m
+ apsara/models/qwen/qwen2.5-1.5b-instruct-q4_k_m.gguf                        |    Bin [31m0[m -> [32m1117320736[m bytes
+ apsara/prepared_data/filtered_experiment/train.jsonl                        |  11712 [32m+[m
+ apsara/prepared_data/test.jsonl                                             |   2245 [32m+[m
+ apsara/prepared_data/train.jsonl                                            |  42639 [32m++[m
+ apsara/ride_sharing_data/__pycache__/evaluate_lora_cpu_full.cpython-314.pyc |    Bin [31m0[m -> [32m4614[m bytes
+ apsara/ride_sharing_data/__pycache__/train_lora.cpython-314.pyc             |    Bin [31m0[m -> [32m8291[m bytes
+ apsara/ride_sharing_data/__pycache__/train_lora_cpu.cpython-314.pyc         |    Bin [31m0[m -> [32m10674[m bytes
+ apsara/ride_sharing_data/__pycache__/train_lora_gpu.cpython-314.pyc         |    Bin [31m0[m -> [32m11856[m bytes
+ apsara/ride_sharing_data/__pycache__/train_lora_gpu_test.cpython-314.pyc    |    Bin [31m0[m -> [32m11833[m bytes
+ .../malayalam_manglish_improvement_batch.jsonl                              |     30 [32m+[m
+ apsara/ride_sharing_data/apsara_manglish_english_ride_sharing_seed.jsonl    |     44 [32m+[m
+ apsara/ride_sharing_data/base_model_results.jsonl                           |     20 [32m+[m
+ apsara/ride_sharing_data/evaluation.jsonl                                   |     20 [32m+[m
+ apsara/ride_sharing_data/generated_batch_2.jsonl                            |     31 [32m+[m
+ apsara/ride_sharing_data/generated_review.jsonl                             |     10 [32m+[m
+ apsara/ride_sharing_data/improvement_review.jsonl                           |     15 [32m+[m
+ apsara/ride_sharing_data/lora_cpu_full_results.jsonl                        |     20 [32m+[m
+ apsara/ride_sharing_data/lora_cpu_manglish_v2_results.jsonl                 |     20 [32m+[m
+ apsara/ride_sharing_data/lora_gpu_test_results.jsonl                        |     20 [32m+[m
+ apsara/ride_sharing_data/malayalam_manglish_improvement_batch.jsonl         |     30 [32m+[m
+ apsara/ride_sharing_data/train.jsonl                                        |     95 [32m+[m
+ apsara/ride_sharing_data/train_before_batch_2.jsonl                         |     19 [32m+[m
+ apsara/ride_sharing_data/train_before_improvements.jsonl                    |     50 [32m+[m
+ .../ride_sharing_data/train_before_malayalam_manglish_20261022_104215.jsonl |     65 [32m+[m
+ apsara/ride_sharing_data/train_manglish_english_v2.jsonl                    |    137 [32m+[m
+ 60 files changed, 3543619 insertions(+), 33 deletions(-)
