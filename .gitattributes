@@ -1,0 +1,6 @@
+*.safetensors filter=lfs diff=lfs merge=lfs -text
+*.gguf filter=lfs diff=lfs merge=lfs -text
+apsara/models/qwen/apsara-lora-cpu-full-20261022/*.safetensors filter=lfs diff=lfs merge=lfs -text
+apsara/models/qwen/apsara-lora-cpu-manglish-v2-20261022/*.safetensors filter=lfs diff=lfs merge=lfs -text
+apsara/models/qwen/apsara-lora-cpu-one-step-20261022/*.safetensors filter=lfs diff=lfs merge=lfs -text
+apsara/models/qwen/apsara-lora-gpu-test-3/*.safetensors filter=lfs diff=lfs merge=lfs -text
