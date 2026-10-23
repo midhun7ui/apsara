@@ -14,13 +14,13 @@ BASE_DIR = Path(__file__).resolve().parent
 APSARA_DIR = BASE_DIR.parent
 
 MODEL_DIR = APSARA_DIR / "models" / "qwen" / "hf"
-DATA_FILE = BASE_DIR / "train_combined_v2_deduplicated.jsonl"
+DATA_FILE = BASE_DIR / "train_combined_v5.jsonl"
 
 # Use a fresh directory for every test run. Override with APSARA_OUTPUT_DIR if needed.
 OUTPUT_DIR = Path(
     __import__("os").environ.get(
         "APSARA_OUTPUT_DIR",
-        str(APSARA_DIR / "models" / "qwen" / "apsara-lora-gpu-v2-20261023"),
+        str(APSARA_DIR / "models" / "qwen" / "apsara-lora-gpu-v5-20261024"),
     )
 )
 
@@ -47,79 +47,67 @@ def load_examples():
 
 
 def prepare_dataset(tokenizer, examples):
-    """Prepare assistant-only labels, trimming prompts and skipping overlong answers."""
+    """Train on each assistant turn with preceding conversation context."""
     rows = []
     skipped = 0
 
-    for index, example in enumerate(examples, start=1):
+    for example_index, example in enumerate(examples, start=1):
         messages = example.get("messages")
         if not isinstance(messages, list):
-            raise ValueError(f"Example {index} has no valid 'messages' list.")
-
-        assistant_messages = [
-            message for message in messages
-            if message.get("role") == "assistant"
-        ]
-        if not assistant_messages:
-            raise ValueError(f"Example {index} has no assistant message.")
-
-        # Use the final assistant response if a conversation contains more than one.
-        answer = assistant_messages[-1].get("content", "")
-        if not isinstance(answer, str) or not answer.strip():
-            raise ValueError(f"Example {index} has an empty assistant answer.")
-
-        prompt_messages = [
-            message for message in messages
-            if message.get("role") != "assistant"
-        ]
-
-        prompt = tokenizer.apply_chat_template(
-            prompt_messages,
-            tokenize=False,
-            add_generation_prompt=True,
-        )
-
-        answer_text = answer + (tokenizer.eos_token or "")
-        prompt_ids = tokenizer(
-            prompt,
-            add_special_tokens=False,
-        )["input_ids"]
-        answer_ids = tokenizer(
-            answer_text,
-            add_special_tokens=False,
-        )["input_ids"]
-
-        # The answer is never truncated. Skip it if it cannot fit in the sequence.
-        if len(answer_ids) >= MAX_LENGTH:
-            print(
-                f"Skipping example {index}: answer has {len(answer_ids)} tokens "
-                f"(MAX_LENGTH={MAX_LENGTH})."
+            raise ValueError(
+                f"Example {example_index} has no valid messages list."
             )
-            skipped += 1
-            continue
 
-        prompt_budget = MAX_LENGTH - len(answer_ids)
+        for turn_index, message in enumerate(messages):
+            if message.get("role") != "assistant":
+                continue
 
-        if len(prompt_ids) > prompt_budget:
-            print(
-                f"Skipping example {index}: prompt has {len(prompt_ids)} tokens, "
-                f"but only {prompt_budget} tokens fit alongside the answer."
+            answer = message.get("content", "")
+            if not isinstance(answer, str) or not answer.strip():
+                raise ValueError(
+                    f"Example {example_index}, turn {turn_index}: "
+                    "empty assistant answer."
+                )
+
+            # Include system instructions and all preceding conversation turns.
+            prompt_messages = messages[:turn_index]
+            prompt = tokenizer.apply_chat_template(
+                prompt_messages,
+                tokenize=False,
+                add_generation_prompt=True,
             )
-            skipped += 1
-            continue
 
-        input_ids = prompt_ids + answer_ids
+            answer_text = answer + (tokenizer.eos_token or "")
+            prompt_ids = tokenizer(
+                prompt, add_special_tokens=False
+            )["input_ids"]
+            answer_ids = tokenizer(
+                answer_text, add_special_tokens=False
+            )["input_ids"]
 
-        # Only the assistant answer contributes to the loss.
-        labels = [-100] * len(prompt_ids) + answer_ids
+            if len(answer_ids) >= MAX_LENGTH:
+                skipped += 1
+                continue
 
-        rows.append({
-            "input_ids": input_ids,
-            "attention_mask": [1] * len(input_ids),
-            "labels": labels,
-        })
+            prompt_budget = MAX_LENGTH - len(answer_ids)
+            # Do not truncate answers or silently drop conversation context.
+            if len(prompt_ids) > prompt_budget:
+                skipped += 1
+                continue
 
-    print(f"Prepared {len(rows)} examples; skipped {skipped} overlong answers.")
+            input_ids = prompt_ids + answer_ids
+            labels = [-100] * len(prompt_ids) + answer_ids
+
+            rows.append({
+                "input_ids": input_ids,
+                "attention_mask": [1] * len(input_ids),
+                "labels": labels,
+            })
+
+    print(
+        f"Prepared {len(rows)} assistant-turn examples; "
+        f"skipped {skipped} overlong examples."
+    )
     return rows
 
 
