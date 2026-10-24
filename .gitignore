@@ -6,3 +6,7 @@ apsara/models/qwen/qwen2.5-1.5b-instruct-q4_k_m.gguf
 # Trained model outputs
 apsara/models/qwen/apsara-lora-gpu-v6-phase1/
 apsara/models/qwen/apsara-lora-gpu-v6-phase2/
+
+# Ignore training checkpoints
+apsara/models/qwen/apsara-lora-gpu-v6-phase1/
+apsara/models/qwen/apsara-lora-gpu-v6-phase2/
