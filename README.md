@@ -10,73 +10,90 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Project-AI%20Fine--Tuning-7C3AED?style=for-the-badge" alt="AI Fine-tuning">
-  <img src="https://img.shields.io/badge/Base%20Model-Qwen2.5--1.5B-2563EB?style=for-the-badge" alt="Qwen2.5-1.5B">
-  <img src="https://img.shields.io/badge/Domain-Ride%20Sharing-059669?style=for-the-badge" alt="Ride Sharing">
-  <img src="https://img.shields.io/badge/Status-In%20Development-F59E0B?style=for-the-badge" alt="In Development">
+  <img src="https://img.shields.io/badge/Current%20Model-Gemma%203%204B-2563EB?style=for-the-badge" alt="Gemma 3 4B">
+  <img src="https://img.shields.io/badge/Training-QLoRA-059669?style=for-the-badge" alt="QLoRA">
+  <img src="https://img.shields.io/badge/Status-Experimental-F59E0B?style=for-the-badge" alt="Experimental">
 </p>
 
 ## About Apsara
 
-**Apsara** is an AI assistant for a ride-sharing application. It is intended to help passengers find rides and help drivers understand how to schedule and manage trips.
+**Apsara** is an AI assistant for a ride-sharing application. It is designed to help passengers express their travel requirements and help drivers understand trip scheduling and management through natural-language conversations.
 
-The project uses **Qwen2.5-1.5B-Instruct** as its initial language model. The current work focuses on preparing ride-sharing training data, evaluating the base model, and preparing an initial LoRA fine-tuning experiment.
+The project explores domain-specific fine-tuning to improve ride-sharing intent understanding, multilingual responses, and conversational behavior, particularly for English, Malayalam, and Manglish.
 
-Apsara is still in development. A fine-tuned model, live ride API integration, and production-ready booking workflows have **not** been established yet.
+The current model experiment is **Apsara V7**, based on **Gemma 3 4B Instruct** and fine-tuned using 4-bit quantization and Low-Rank Adaptation (QLoRA) on a Kaggle Tesla T4 GPU.
 
-## Documentation and Theory Guide
+Earlier experiments used Qwen2.5-1.5B-Instruct. That model remains part of the project's experimental history, but it is no longer the base model used for the V7 experiment.
 
-The `docs/` folder contains the **theory, design decisions, experiment notes, and practical workflow behind Apsara**. These documents explain why the project is designed this way, how the model is trained and evaluated, and what has been learned from each experiment.
+Apsara remains experimental. Fine-tuning does not by itself provide live ride listings, booking capabilities, driver tracking, or production-ready backend integration.
 
-### Documentation index
+## Current model: Apsara V7
 
-| Document | What it explains |
+| Property | Details |
 |---|---|
-| [`00_README_and_Project_Overview.md`](docs/00_README_and_Project_Overview.md) | Project purpose, goals, intended architecture, technology choices, and development scope. |
-| [`01_THEORY_Foundation.md`](docs/01_THEORY_Foundation.md) | The theoretical foundations needed to understand language models and Apsara's approach. |
-| [`02_DATASET_Preparation_and_Validation.md`](docs/02_DATASET_Preparation_and_Validation.md) | Conversational data structure, cleaning, deduplication, validation, tokenization, and train/evaluation separation. |
-| [`03_TRAINING_Kaggle_LoRA_Workflow.md`](docs/03_TRAINING_Kaggle_LoRA_Workflow.md) | LoRA fine-tuning concepts, training configuration, Kaggle workflow, and model artifacts. |
-| [`04_EVALUATION_and_Model_Comparison.md`](docs/04_EVALUATION_and_Model_Comparison.md) | Evaluation methodology, model comparison, and analysis of hallucinations and multilingual response quality. |
-| [`05_Troubleshooting_and_Next_Steps.md`](docs/05_Troubleshooting_and_Next_Steps.md) | Known issues, debugging notes, limitations, and recommended improvements. |
-| [`06_MODEL_STORAGE_and_SESSION_RECOVERY.md`](docs/06_MODEL_STORAGE_and_SESSION_RECOVERY.md) | GitHub cleanup, base-model and adapter storage, checkpoints, and recovery after a Kaggle session ends. |
-| [`07_APSARA_v4_TRAINING_and_RESULTS.md`](docs/07_APSARA_v4_TRAINING_and_RESULTS.md) | The v4 dataset and training setup, evaluation results, known failure modes, and priorities for v5. |
+| Version | Apsara V7 |
+| Base model | Gemma 3 4B Instruct |
+| Model architecture | Gemma 3 conditional-generation model |
+| Fine-tuning approach | QLoRA with PEFT LoRA adapters |
+| Quantization | 4-bit NF4 with double quantization |
+| Compute dtype | FP32 |
+| Training hardware | Kaggle NVIDIA Tesla T4 |
+| GPU memory | Approximately 14.56 GB reported |
+| Training examples | 153 unique conversations before the train/validation split |
+| Training split | 137 examples |
+| Validation split | 16 examples |
+| Epochs completed | 3 |
+| Best recorded training loss | 1.9441 |
+| Best recorded validation loss | 1.9224 |
+| Adapter output | `apsara/models/apsara_v7/` |
 
-### What the documentation covers
+The model was trained using a custom PyTorch training loop with assistant-response loss masking, gradient checkpointing, and LoRA adapters.
 
-Together, these documents explain the theory and reasoning behind the main parts of Apsara:
+The adapter contains approximately 5.95 million trainable parameters, around 0.1382% of the reported 4.306-billion-parameter model.
 
-1. **System design:** the assistant's intended role in a ride-sharing application and why backend APIs—not the language model—must provide trusted live ride and booking data.
-2. **Language-model foundations:** the role of the Qwen base model and why domain-specific fine-tuning is being explored.
-3. **Dataset engineering:** JSONL conversation format, data quality, deduplication, token limits, and why evaluation data must remain separate from training data.
-4. **LoRA fine-tuning:** how adapter-based training works, how the adapter relates to the base model, and which configuration was used for the experiments.
-5. **Evaluation and reliability:** how model versions are compared and how booking-status hallucinations, duplicate-booking risks, and English/Malayalam/Manglish quality issues are identified.
-6. **Experiment storage and recovery:** the difference between base weights, LoRA adapters, and resumable training checkpoints, plus how to preserve work between Kaggle sessions.
-7. **Limitations and next steps:** what has been tested, what remains experimental, and what should improve before production use.
+### Training results
 
-### Suggested reading order
+| Epoch | Training loss | Validation loss |
+|---|---:|---:|
+| 1 | 4.0198 | 2.7444 |
+| 2 | 2.5101 | 2.1332 |
+| 3 | 1.9441 | 1.9224 |
 
-Read the files in numerical order from `00` through `07`. This takes the reader from the project overview and theory to dataset preparation, training, evaluation, troubleshooting, storage/recovery, and the v4 experiment.
+Both training and validation loss decreased during the experiment. This indicates that the model learned patterns from the training examples, but it does not establish that its generated responses are accurate, natural, or safe.
 
-> **Note:** The documentation describes the project's design and experiments; it does not mean every intended feature is implemented. Live ride search, booking, cancellation, and other state-changing operations require working backend integrations, authorization, and validation. Successful training alone does not establish production readiness.
+Initial manual testing of eight Manglish prompts identified several remaining issues:
+
+- Unnatural Manglish grammar and word endings.
+- Repetitive responses that instruct users to check the app.
+- Incomplete understanding of booking-status and cancellation requests.
+- Loss of route details in some responses.
+- Weak handling of fare questions and driver-status requests.
+
+These findings motivate further dataset improvement and systematic evaluation.
+
+> **Evaluation status:** The eight-prompt manual test is an initial qualitative check, not a complete benchmark. The separate 20-example held-out evaluation dataset must remain excluded from training and should be used for a formal comparison of the base model and the fine-tuned adapter.
 
 ## Project goals
 
 - Understand passenger and driver requests in natural language.
-- Ask for missing route, date, and departure-time information.
-- Help passengers compare ride options returned by the application.
+- Ask relevant follow-up questions when route, date, or departure time is missing.
+- Help passengers interpret ride options returned by the application.
 - Help drivers understand trip scheduling and management.
 - Avoid inventing live availability, prices, seat counts, driver locations, or booking status.
-- Explore parameter-efficient fine-tuning using LoRA.
-- Evaluate English, Malayalam, and Manglish responses.
-- Eventually connect the assistant to controlled backend APIs for ride search and booking workflows.
+- Explore parameter-efficient fine-tuning using QLoRA and LoRA.
+- Improve English, Malayalam, and Manglish response quality.
+- Evaluate model versions against held-out examples.
+- Eventually connect the assistant to authorized backend APIs for ride search and booking workflows.
 
 ## Important design rule
 
-The language model must not be treated as the source of truth for live application data.
+**The language model must not be the source of truth for live application data.**
 
 - Ride listings, prices, available seats, trip status, and booking status must come from the backend.
 - The backend must enforce authorization, validate requests, and handle state-changing operations.
-- The assistant should ask for confirmation before submitting a booking or cancellation when required by the product workflow.
-- It must not disclose another user's private contact information without proper authorization.
+- The assistant must not claim a booking or cancellation succeeded unless the backend confirms it.
+- The assistant should request confirmation before a state-changing operation when required by the product workflow.
+- Private passenger and driver information must only be disclosed when authorized.
 
 ## Intended architecture
 
@@ -88,7 +105,10 @@ Ride-Sharing Application
         |
         v
 Apsara AI Assistant
-Qwen2.5-1.5B-Instruct + optional LoRA adapter
+Gemma 3 4B Instruct
+        |
+        v
+Apsara V7 LoRA Adapter
         |
         v
 Intent understanding and tool selection
@@ -97,7 +117,7 @@ Intent understanding and tool selection
 Controlled backend API calls
         |
         +--> Ride search
-        +--> Trip details / seats / contribution
+        +--> Trip details and available seats
         +--> Booking status
         +--> Authorized booking or cancellation
         |
@@ -111,373 +131,294 @@ Verified API result
 Natural-language response
 ```
 
-This is the **intended architecture**. It does not mean all API tools or booking flows have already been implemented.
+This is the intended architecture. The diagram does not imply that all backend tools, booking operations, or live-data integrations have already been implemented.
 
 ## Technology stack
 
-| Technology | Purpose / current use |
+| Technology | Purpose |
 |---|---|
-| Python | Dataset scripts, model experiments, and evaluation |
-| Qwen2.5-1.5B-Instruct | Initial base language model |
-| Hugging Face Transformers | Loading the model and running inference/training experiments |
+| Python | Dataset preparation, model experiments, evaluation |
+| Gemma 3 4B Instruct | Current V7 base language model |
+| Hugging Face Transformers | Model loading, tokenization, inference, and model execution |
 | Hugging Face PEFT | LoRA adapter configuration and fine-tuning |
-| Hugging Face Datasets | Available for dataset workflows |
+| bitsandbytes | 4-bit model quantization |
+| PyTorch | Model execution and custom training loop |
+| Hugging Face Datasets | Dataset loading, splitting, and processing |
 | JSONL | Conversational training and evaluation data |
-| llama.cpp | Local inference using the quantized GGUF model |
-| Vulkan | GPU acceleration for supported `llama.cpp` inference builds |
-| PyTorch | Model execution and training |
-| Git / GitHub | Version control and documentation |
-
-The current Transformers/PyTorch environment reports that CUDA is unavailable. CUDA is NVIDIA-specific; the laptop has AMD GPUs, so AMD GPU training needs a separately verified compatible compute stack. Local GPU inference with Vulkan does not prove that PyTorch GPU training works.
+| Kaggle | GPU-based training experiments |
+| Git / GitHub | Source control, documentation, and experiment artifacts |
+| Qwen2.5-1.5B-Instruct | Earlier model experiment |
+| llama.cpp / GGUF | Earlier local inference workflow; separate from the current Gemma adapter |
 
 ## Repository structure
 
-The following tree documents the files created or discussed in the current development workflow. Some older project files may exist in addition to these.
+The following is a representative structure. Confirm the actual files in the repository before treating it as a complete inventory.
 
 ```text
-LLM-MODEL-E-COMMERCE/
+apsara/
 ├── README.md
-├── env/                              # Existing project Python environment
-└── apsara/
-    ├── assets/
-    │   └── fictional_model.jpeg      # README image
-    │
-    ├── models/
-    │   └── qwen/
-    │       ├── hf/                   # Downloaded Hugging Face model files
-    │       │   ├── config.json
-    │       │   ├── tokenizer files
-    │       │   └── model.safetensors
-    │       ├── qwen2.5-1.5b-instruct-q4_k_m.gguf
-    │       └── apsara-lora-v1/        # Intended output for LoRA adapter
-    │
-    ├── ride_sharing_data/
-    │   ├── train.jsonl
-    │   ├── train_before_batch_2.jsonl
-    │   ├── generated_review.jsonl
-    │   ├── generated_batch_2.jsonl
-    │   ├── train_before_improvements.jsonl
-    │   ├── improvement_review.jsonl
-    │   ├── evaluation.jsonl
-    │   ├── base_model_results.jsonl
-    │   ├── generate_dataset.py
-    │   ├── generate_batch_2.py
-    │   ├── generate_improvement_batch.py
-    │   ├── merge_batch_2.py
-    │   ├── merge_improvements.py
-    │   ├── validate_ride_sharing_data.py
-    │   ├── create_evaluation.py
-    │   ├── evaluate_base_model.py
-    │   └── train_lora.py
-    │
-    ├── prepared_data/                # Legacy e-commerce experiment data
-    │   ├── train.jsonl
-    │   ├── test.jsonl
-    │   └── filtered_experiment/
-    │       └── train.jsonl
-    │
-    ├── prepare_dataset.py            # Legacy dataset preparation
-    ├── inspect_dataset.py             # Legacy dataset inspection
-    ├── audit_dataset.py              # Legacy dataset audit
-    ├── filter_dataset.py             # Legacy dataset filtering
-    ├── validate_filtered.py          # Legacy dataset validation
-    ├── placeholder_audit.py           # Legacy placeholder audit
-    ├── download_datasets.py          # Legacy dataset download helper
-    └── llm-test.py                   # Earlier local model test
+├── assets/
+│   └── fictional_model.jpeg
+├── models/
+│   ├── apsara_v7/
+│   │   ├── README.md
+│   │   ├── adapter_config.json
+│   │   ├── adapter_model.safetensors
+│   │   ├── chat_template.jinja
+│   │   ├── manglish_test_results.jsonl
+│   │   └── tokenizer and processor configuration files
+│   └── qwen/
+│       └── ...                         # Earlier experiment artifacts
+├── ride_sharing_data/
+│   ├── evaluation.jsonl
+│   ├── apsara_v7_candidate.jsonl
+│   ├── train_manglish_english_v2.jsonl
+│   ├── apsara_manglish_english_ride_sharing_seed.jsonl
+│   ├── malayalam_manglish_improvement_batch.jsonl
+│   └── ...                             # Other dataset and evaluation files
+└── prepared_data/
+    └── ...                             # Legacy e-commerce experiment data
 ```
 
-**Note:** The tree lists known files from the current workflow. Confirm with `find apsara -maxdepth 4 -type f` before treating it as an exact inventory. The `apsara-lora-v1/` directory is the configured output location; it may not exist until training completes successfully.
+## Model files and loading
 
-## Model files
+### Apsara V7 adapter
 
-### Hugging Face model
-
-Location:
+The V7 adapter is stored at:
 
 ```text
-apsara/models/qwen/hf/
+apsara/models/apsara_v7/
 ```
 
-This directory contains the local Hugging Face model and tokenizer files used by the Transformers scripts. The base model is loaded from this directory.
+Important files include:
 
-### GGUF model
+- `adapter_config.json` — LoRA adapter configuration.
+- `adapter_model.safetensors` — trained adapter weights.
+- `manglish_test_results.jsonl` — outputs from the initial eight-prompt test.
+- Tokenizer and processor configuration files saved during the experiment.
 
-Location:
+The adapter is **not a complete standalone copy of Gemma 3 4B**. The original base model must be available separately.
+
+The local Kaggle paths used during training were:
 
 ```text
-apsara/models/qwen/qwen2.5-1.5b-instruct-q4_k_m.gguf
+/kaggle/working/gemma-3-4b-it
+/kaggle/working/apsara_v7_gemma3_4b
 ```
 
-This is the quantized GGUF model used for local `llama.cpp` inference. It is separate from the Hugging Face model used by the current Transformers training script.
+The first path contains the downloaded base model; the second contains the training output. Kaggle session storage is temporary, so preserve the adapter outside the session before it ends.
 
-Example inference command (the Vulkan device name can differ by installation):
+### Loading the adapter
 
-```bash
-llama-cli \
-  -m apsara/models/qwen/qwen2.5-1.5b-instruct-q4_k_m.gguf \
-  --device Vulkan1 \
-  --gpu-layers 99 \
-  --ctx-size 2048
+Use compatible versions of Transformers, PEFT, PyTorch, and bitsandbytes. The following is an illustrative loading example for a compatible environment:
+
+```python
+import torch
+from transformers import (
+    BitsAndBytesConfig,
+    Gemma3ForConditionalGeneration,
+    AutoProcessor,
+)
+from peft import PeftModel
+
+BASE_MODEL = "/path/to/gemma-3-4b-it"
+ADAPTER_PATH = "apsara/models/apsara_v7"
+
+quant_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype=torch.float32,
+    bnb_4bit_use_double_quant=True,
+)
+
+processor = AutoProcessor.from_pretrained(ADAPTER_PATH)
+
+base_model = Gemma3ForConditionalGeneration.from_pretrained(
+    BASE_MODEL,
+    quantization_config=quant_config,
+    torch_dtype=torch.float32,
+    device_map="auto",
+    attn_implementation="eager",
+)
+
+model = PeftModel.from_pretrained(
+    base_model,
+    ADAPTER_PATH,
+).eval()
 ```
 
-This runs inference; it does **not** fine-tune the model or connect it to live ride APIs.
+The original experiment required FP32 compute because an earlier FP16 quantized inference attempt produced non-finite logits. The configuration above reflects the working setup from that experiment; other hardware and software environments may require different settings.
+
+Verify the model's behavior and memory usage before using it in an application.
 
 ## Ride-sharing dataset
 
-All new ride-sharing conversational data is stored in:
+Ride-sharing conversational data is stored in:
 
 ```text
 apsara/ride_sharing_data/
 ```
 
-### Current dataset status
+### V7 training dataset
 
-At the time this README was updated:
+The V7 candidate dataset was assembled from three source files:
 
-- `train.jsonl` contains **64 examples**.
-- `evaluation.jsonl` contains **20 examples**.
-- A check found **0 exact user-question overlaps** between the training and evaluation files.
-- The training dataset structure validator reported **0 errors**.
-- `base_model_results.jsonl` stores the base model's generated answers to the evaluation questions.
+| Source | Loaded examples | Unique examples added |
+|---|---:|---:|
+| `train_manglish_english_v2.jsonl` | 137 | 137 |
+| `apsara_manglish_english_ride_sharing_seed.jsonl` | 44 | 0 |
+| `malayalam_manglish_improvement_batch.jsonl` | 30 | 16 |
+| **Total** | **211** | **153** |
 
-The evaluation set must remain separate from training. Do not merge `evaluation.jsonl` into `train.jsonl`; otherwise, the evaluation would no longer be a clean held-out test.
+The exact-conversation deduplication process produced 153 candidate conversations, with zero invalid examples reported.
+
+The candidate file is:
+
+```text
+apsara/ride_sharing_data/apsara_v7_candidate.jsonl
+```
+
+The 153 examples were split into:
+
+- 137 training examples.
+- 16 validation examples.
+
+The separate 20-example `evaluation.jsonl` file was not used by the training loop.
+
+The initial exact-conversation overlap check reported zero matches. That check alone does not establish that there are no semantically similar examples or overlapping user questions with different assistant answers. A stricter question-level leakage check remains useful.
 
 ### JSONL conversation format
 
-Each line in `train.jsonl` is an independent JSON object with a `messages` list. The current dataset examples use a user message and an assistant response:
+Each line is an independent JSON object containing a `messages` list.
 
 ```json
 {
   "messages": [
     {
       "role": "user",
-      "content": "I need a ride from Aluva to Kakkanad tomorrow morning."
+      "content": "Enikku nale Aluva ninnu Kochi vare pokanam."
     },
     {
       "role": "assistant",
-      "content": "What departure time would you prefer? I'll need current ride listings to confirm availability."
+      "content": "Sheri. Nale eth samayathaanu pokendathu?"
     }
   ]
 }
 ```
 
-Each JSON object must be on a single line in the actual JSONL file. The example above is formatted across multiple lines only for readability.
+Each conversation should be reviewed for factual accuracy, natural language, appropriate follow-up questions, and safe handling of live-data requests.
 
-Training answers should be accurate and diverse. Avoid training the model to claim that it has searched for a ride, confirmed a booking, or retrieved a price unless a real backend result supports that claim.
+Training answers should not teach the model to claim that it searched for a ride, confirmed a booking, or retrieved a price unless an actual backend result supports that claim.
 
-## Ride-sharing data files and scripts
+### Evaluation data
 
-| File | Purpose |
-|---|---|
-| `train.jsonl` | Current ride-sharing fine-tuning dataset. It currently contains 64 examples. |
-| `generated_review.jsonl` | Earlier generated/review batch retained as a source/reference file. |
-| `generated_batch_2.jsonl` | Second generated batch, containing 31 examples in the current workflow. |
-| `improvement_review.jsonl` | New 15-example improvement batch targeting hallucinations, privacy, booking-status handling, and local-language conversations. |
-| `train_before_batch_2.jsonl` | Backup of the 18-example training dataset before batch 2 was merged. |
-| `train_before_improvements.jsonl` | Backup of the 49-example training dataset before the 15 improvement examples were merged. |
-| `evaluation.jsonl` | Held-out evaluation questions. Keep this separate from training. |
-| `base_model_results.jsonl` | Base model outputs for the 20 evaluation questions, including expected and generated answers. |
-| `generate_dataset.py` | Generates the initial review examples. |
-| `generate_batch_2.py` | Generates the second batch of ride-sharing examples. |
-| `generate_improvement_batch.py` | Creates the 15-example improvement batch. |
-| `merge_batch_2.py` | Appends unseen questions from batch 2 and makes a backup before merging. |
-| `merge_improvements.py` | Validates and merges improvement examples while skipping exact duplicate user questions; makes a backup before writing. |
-| `validate_ride_sharing_data.py` | Checks the structure of `train.jsonl`. |
-| `create_evaluation.py` | Creates the separate evaluation set. |
-| `evaluate_base_model.py` | Runs the base model on evaluation questions and saves the results. |
-| `train_lora.py` | Initial CPU-oriented LoRA training experiment; syntax and data-preparation checks have passed, but successful training has not yet been confirmed. |
-
-The generated/review and backup files are kept for traceability. They are not all separate training sets. The file used by the current training script is `train.jsonl`.
-
-## Dataset commands
-
-Run commands from the repository root.
-
-### Validate the training dataset
-
-```bash
-python apsara/ride_sharing_data/validate_ride_sharing_data.py
-```
-
-Expected current result:
+The held-out evaluation dataset is located at:
 
 ```text
-Total examples: 64
-Errors: 0
-Dataset structure validation passed.
+apsara/ride_sharing_data/evaluation.jsonl
 ```
 
-### Check training/evaluation overlap
+It contains 20 examples intended to test ride-sharing questions, including route and departure-time requests, current availability, and multilingual conversations.
 
-```bash
-python -c "import json; from pathlib import Path; b=Path('apsara/ride_sharing_data'); load=lambda p:[json.loads(x) for x in p.read_text(encoding='utf-8').splitlines() if x.strip()]; train=load(b/'train.jsonl'); ev=load(b/'evaluation.jsonl'); getq=lambda r: next(m['content'].strip().casefold() for m in r['messages'] if m['role']=='user'); tq={getq(r) for r in train}; overlap=[getq(r) for r in ev if getq(r) in tq]; print('Training examples:',len(train)); print('Evaluation examples:',len(ev)); print('Overlapping questions:',len(overlap)); [print('-',q) for q in overlap]"
-```
+**Do not merge the evaluation dataset into the training dataset.** Doing so would compromise its use as a held-out evaluation set.
 
-The most recent run reported 64 training examples, 20 evaluation examples, and 0 exact question overlaps. This check only catches exact normalized user-question matches; it does not guarantee that the sets contain no semantically similar examples.
+## Evaluation and current limitations
 
-## Base model evaluation
+The first V7 manual test used eight Manglish prompts covering:
 
-Run:
+1. Requesting a ride.
+2. Asking about ride availability.
+3. Checking whether a ride was booked.
+4. Providing pickup and destination.
+5. Asking about driver location.
+6. Cancelling a ride.
+7. Requesting a ride home.
+8. Asking about a fare.
 
-```bash
-python apsara/ride_sharing_data/evaluate_base_model.py
-```
+The model frequently used generic instructions to check the app and produced some unnatural Manglish constructions. These are known limitations, not evidence of production readiness.
 
-The script evaluates the base Qwen model using `evaluation.jsonl` and writes:
+### Recommended evaluation criteria
 
-```text
-apsara/ride_sharing_data/base_model_results.jsonl
-```
+Evaluate the base model and V7 with the same prompts and comparable generation settings.
 
-The first baseline run showed issues that need improvement, including invented ride information, weak Malayalam/Manglish responses, and an unsafe response involving another passenger's contact details. Some responses handled missing details or booking confirmation more appropriately.
+- **Intent understanding:** Does the response identify the actual request?
+- **Slot retention:** Does it preserve pickup, destination, date, and time?
+- **Language quality:** Is English, Malayalam, or Manglish natural and consistent with the user's language?
+- **Follow-up relevance:** Does it ask only for information that is missing?
+- **Factual honesty:** Does it avoid inventing live ride or booking data?
+- **Privacy:** Does it protect account-specific information?
+- **Action safety:** Does it avoid falsely claiming that a booking or cancellation succeeded?
 
-Use the same evaluation questions and comparable generation settings when evaluating a fine-tuned model. Compare outputs manually against explicit criteria such as relevance, factual honesty, privacy, safe booking behavior, and language quality. A model's generated answer should not be treated as correct merely because it is fluent.
+A decrease in training or validation loss does not guarantee an improvement in these criteria.
 
-## LoRA training experiment
+## Earlier Qwen experiment
 
-Training script:
+Before V7, the project used Qwen2.5-1.5B-Instruct for initial ride-sharing dataset and LoRA experiments.
 
-```text
-apsara/ride_sharing_data/train_lora.py
-```
+Older Qwen model files, GGUF inference workflows, scripts, and documentation may remain in the repository. They represent earlier experiments and should not be confused with the current Gemma 3 4B adapter.
 
-Configured base model:
-
-```text
-apsara/models/qwen/hf/
-```
-
-Configured adapter output:
-
-```text
-apsara/models/qwen/apsara-lora-v1/
-```
-
-The script uses Hugging Face Transformers `Trainer` and PEFT LoRA. Its current settings include:
-
-- CPU training (`use_cpu=True`)
-- FP32 base model loading
-- LoRA rank 8 and alpha 16
-- Batch size 1
-- Gradient accumulation steps 4
-- 3 epochs
-- Learning rate `1e-4`
-- Gradient checkpointing
-- Assistant-response-only loss masking
-
-The script has passed a Python syntax check and a dataset-preparation check. **A completed training run and a successful adapter load have not yet been confirmed.** CPU training may be slow and memory-intensive on this laptop.
-
-To check syntax:
-
-```bash
-python -m py_compile apsara/ride_sharing_data/train_lora.py
-```
-
-To start the current experiment, after reviewing the configuration and ensuring sufficient memory:
-
-```bash
-python apsara/ride_sharing_data/train_lora.py
-```
-
-If training completes, the adapter is intended to be saved under `apsara/models/qwen/apsara-lora-v1/`. The original base model is not supposed to be overwritten.
-
-### Training limitations
-
-- Sixty-four examples are enough only for an initial experiment, not for establishing production reliability.
-- Training loss decreasing does not prove that answer quality improves.
-- The current script is configured for CPU; it does not automatically use the AMD GPUs.
-- Evaluate the resulting adapter on the same held-out questions before deciding whether to continue training.
-
-## AMD GPU investigation
-
-The laptop has two AMD GPU devices detected by `lspci`:
-
-- Discrete Radeon RX 6500M-family device: PCI ID `1002:743f`, architecture detected as `gfx1034`.
-- Integrated Cezanne/Radeon Vega device: PCI ID `1002:1638`, architecture detected as `gfx90c`.
-
-The Linux system exposes `/dev/kfd` and `/dev/dri/renderD*`, but those device nodes alone do not prove that ROCm/PyTorch compute works.
-
-At the time of writing:
-
-- `/opt/rocm` was not present.
-- `rocminfo` was not installed/available as a command.
-- `rocm-bootstrap` 0.3.0 was installed in a separate environment at `~/rocm-test`.
-- Running `rocm-bootstrap-detect` printed `gfx1034` and `gfx90c`.
-- PyTorch in the project's existing environment reported `torch.cuda.is_available() == False`.
-- A compatible PyTorch GPU runtime has **not** yet been installed or verified.
-- No GPU fine-tuning run has been confirmed.
-
-Do not infer that GPU training works merely because the GPU architecture is detected. Any experimental ROCm/TheRock package should be tested in an isolated environment first, without replacing the project's existing PyTorch setup or system graphics drivers.
-
-## Legacy e-commerce dataset
-
-The following directory contains data from an earlier e-commerce chatbot experiment:
-
-```text
-apsara/prepared_data/
-├── train.jsonl
-├── test.jsonl
-└── filtered_experiment/
-    └── train.jsonl
-```
-
-These files are retained for reference and are **not the Apsara ride-sharing training dataset**. Do not merge them into `apsara/ride_sharing_data/train.jsonl`. Review the original dataset's license and terms before redistribution or commercial use.
+The current V7 adapter is not interchangeable with a Qwen base model. Use the matching Gemma 3 4B base model when loading the V7 adapter.
 
 ## Safety and production considerations
 
 Before Apsara is used by real passengers or drivers:
 
-- Implement backend ride-search and booking APIs.
+- Implement and test backend ride-search and booking APIs.
 - Require authorization for account-specific data and state-changing actions.
-- Validate current trip and seat availability at the backend.
-- Avoid duplicate bookings after timeouts by checking booking status before retrying.
+- Validate trip and seat availability in the backend.
+- Handle duplicate booking attempts and network timeouts safely.
 - Never invent a ride, price, seat count, driver location, or booking status.
-- Protect passenger contact details and other private information.
-- Test English, Malayalam, and Manglish conversations.
-- Evaluate both normal and adversarial requests.
-- Log errors without leaking credentials or private data.
+- Protect passenger and driver contact information.
+- Evaluate English, Malayalam, and Manglish conversations.
+- Test adversarial and ambiguous requests.
+- Log errors without exposing credentials or private data.
 
-Fine-tuning can help shape response patterns, but it does not replace backend validation, permissions, or live data retrieval.
+Fine-tuning can improve response patterns, but it cannot replace backend validation, authorization, or reliable access to live data.
 
 ## Roadmap
 
-- [x] Select Qwen2.5-1.5B-Instruct as the initial base model.
-- [x] Download the Hugging Face model and retain a quantized GGUF model for inference.
-- [x] Create a separate ride-sharing dataset directory.
-- [x] Expand the ride-sharing training dataset to 64 examples.
-- [x] Validate the current training dataset structure.
-- [x] Create a separate 20-question evaluation set.
-- [x] Confirm zero exact user-question overlaps between training and evaluation.
-- [x] Run baseline evaluation and save its results.
-- [x] Create an initial LoRA training script and validate its syntax/data preparation.
-- [x] Detect local AMD GPU architecture names in an isolated ROCm test environment.
-- [ ] Complete a GPU runtime compatibility test, if feasible.
-- [ ] Run the first successful LoRA training experiment.
-- [ ] Load and test the saved adapter.
-- [ ] Compare base and fine-tuned responses on the held-out evaluation set.
-- [ ] Improve dataset quality and add more diverse reviewed examples.
+- [x] Create a ride-sharing conversational dataset.
+- [x] Prepare a separate held-out evaluation dataset.
+- [x] Run an initial base-model evaluation.
+- [x] Assemble and deduplicate the V7 candidate dataset.
+- [x] Split the candidate dataset into training and validation sets.
+- [x] Load Gemma 3 4B using 4-bit quantization.
+- [x] Attach LoRA adapters and complete a three-epoch training run.
+- [x] Record training and validation loss.
+- [x] Run an initial eight-prompt Manglish test.
+- [ ] Run a stricter training/evaluation leakage audit.
+- [ ] Compare V7 against the actual previous fine-tuned checkpoint, if available.
+- [ ] Evaluate V7 on all held-out evaluation examples.
+- [ ] Improve Manglish naturalness and ride-intent understanding.
+- [ ] Expand and review the training dataset.
+- [ ] Test the adapter in a clean environment after a Kaggle session restart.
 - [ ] Build and test controlled backend tool calling.
 - [ ] Implement authorized ride-search and booking workflows.
-- [ ] Document measured quality, speed, and memory use.
+- [ ] Document measured quality, inference speed, and memory use.
 
 ## Repository hygiene
 
-Avoid committing the following unless there is a deliberate reason:
+Avoid committing:
 
-- Large model weights and checkpoints
-- Virtual environments (`env/`, `rocm-test/`)
-- Private datasets or user information
-- API keys, access tokens, database credentials, or other secrets
+- Access tokens, API keys, database credentials, or other secrets.
+- Unnecessary virtual environments and caches.
+- The complete downloaded base model unless there is a deliberate reason and appropriate storage.
+- Private or unlicensed datasets.
+- Unnecessary intermediate checkpoints.
 
-The `rocm-test` environment is located in the home directory (`~/rocm-test`), outside this repository.
+The trained V7 adapter may be stored in the repository if it fits GitHub's file-size limits and the applicable model license permits the intended redistribution. If it is too large, use Git LFS or a suitable model-hosting service and link to the artifact from the README.
+
+Review the base model's license and terms before redistributing the adapter or using it commercially.
 
 ## Acknowledgements
 
-- [Qwen](https://huggingface.co/Qwen) — base language model
-- [Hugging Face](https://huggingface.co/) — Transformers and model tooling
-- [PEFT](https://huggingface.co/docs/peft/index) — parameter-efficient fine-tuning
-- [llama.cpp](https://github.com/ggml-org/llama.cpp) — local GGUF inference
-- [TheRock](https://github.com/ROCm/TheRock) — experimental AMD GPU compute ecosystem
+- [Google Gemma](https://ai.google.dev/gemma) — current V7 base-model family.
+- [Qwen](https://huggingface.co/Qwen) — earlier base-model experiments.
+- [Hugging Face Transformers](https://huggingface.co/docs/transformers/index) — model loading and inference.
+- [Hugging Face PEFT](https://huggingface.co/docs/peft/index) — parameter-efficient fine-tuning.
+- [bitsandbytes](https://github.com/bitsandbytes-foundation/bitsandbytes) — quantization support.
+- [PyTorch](https://pytorch.org/) — model execution and training.
+- [Kaggle](https://www.kaggle.com/) — GPU-based experimentation.
 
 ---
 
