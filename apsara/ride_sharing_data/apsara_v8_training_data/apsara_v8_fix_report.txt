@@ -1,0 +1,9 @@
+Apsara V8 repair report
+=======================
+Validation records exported: 86
+Test records exported: 46
+Validation records removed due to exact normalized user-turn overlap with test: apsara_v8_0797, apsara_v8_0843
+
+Repairs: route continuity corrected for apsara_v8_0796 and apsara_v8_0818; cancellation-status safety improved for apsara_v8_0876; payment/booking status response wording checked for apsara_v8_0900 and apsara_v8_0917; apsara_v8_0872 kept as a scheduling response.
+
+Important: the actual train JSONL was not available in the accessible uploads, so this bundle does not claim to have cleaned the 727 training records or verified train-vs-evaluation leakage. Use the included script on the real train.jsonl. Exact overlap checks do not catch semantic duplicates; manual review is still required.
